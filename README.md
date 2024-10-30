@@ -1,10 +1,10 @@
 # Medalert - Django
 
-### Leia tudo, mas principalmente as [instruções iniciais](#instruções-iniciais), para que o projeto funcione.
+### Leia tudo, mas principalmente as [instruções iniciais](#preparacao), para que o projeto funcione.
 
 <br>
 
-## Para preparar a inicialização da aplicação
+<h2 id="preparacao"> Para preparar a inicialização da aplicação</h2>
 
 <br>
 
