@@ -133,7 +133,7 @@ elif environment == 'local':
 elif environment == 'production':
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
+            'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.environ["PROD_DATABASE"],
             'USER': os.environ["PROD_USER"],
             'PASSWORD': os.environ["PROD_PASSWORD"],
