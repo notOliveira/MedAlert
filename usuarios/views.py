@@ -45,11 +45,10 @@ class RegistroUsuario(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         try:
-            # Chama o método create do serializer
             serializer.save()
-        except Exception as e:  # Captura qualquer exceção gerada
+        except Exception as e:
             if isinstance(e, UsuarioCriadoComSucesso):
                 return Response({'detail': str(e)}, status=status.HTTP_201_CREATED)
-            raise  # Relevanta outras exceções
+            raise
 
         return Response({'detail': 'Usuário criado com sucesso!'}, status=status.HTTP_201_CREATED)
