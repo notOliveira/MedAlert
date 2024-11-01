@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from usuarios.models import Usuario, Paciente, Medico
-from .constants import ESPECIALIDADES, ESTADOS_BRASIL
+from usuarios.constants import ESPECIALIDADES, ESTADOS_BRASIL
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:

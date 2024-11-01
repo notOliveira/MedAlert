@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from usuarios.models import Usuario, Paciente, Medico
 from usuarios.serializers import UsuarioSerializer, PacienteSerializer, MedicoSerializer, RegistroSerializer, UsuarioCriadoComSucesso
-from .permissions import IsOwnerOrAdmin
+from usuarios.permissions import IsOwnerOrAdmin
 
 class UsuarioViewSet(viewsets.ModelViewSet):
     serializer_class = UsuarioSerializer
