@@ -10,6 +10,7 @@ urlpatterns = [
     path(f'{v1}/alarmes/', include('alarmes.urls')),
     path(f'{v1}/medicamentos/', include('medicamentos.urls')),
     path(f'{v1}/usuarios/', include('usuarios.urls')),
+    path(f'{v1}/receitas/', include('receitas.urls')),
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
     # re_path(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
 ]

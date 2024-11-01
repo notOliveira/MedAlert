@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'alarmes.apps.AlarmesConfig',
     'medicamentos.apps.MedicamentosConfig',
     'usuarios.apps.UsuariosConfig',
+    'receitas.apps.ReceitasConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
