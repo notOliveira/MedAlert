@@ -10,16 +10,17 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('medicamentos', '0001_initial'),
+        ('alarmes', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Alarme',
+            name='Receita',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('inicio', models.DateTimeField()),
-                ('intervalo_horas', models.IntegerField(help_text='Intervalo entre doses em horas.')),
-                ('duracao_dias', models.IntegerField(help_text='Duração do tratamento em dias')),
+                ('recomendacao', models.TextField(blank=True, null=True)),
+                ('dose', models.CharField(max_length=50)),
+                ('alarme', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='alarmes.alarme')),
                 ('medicamento', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='medicamentos.medicamento')),
             ],
         ),
