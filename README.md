@@ -74,6 +74,14 @@
 
 <br>
 
+## Coletando arquivos estáticos
+
+```
+\> python manage.py collectstatic
+```
+
+<br>
+
 ## Iniciar o projeto (endereço e porta opcionais, porta padrão 8000)
 
 
