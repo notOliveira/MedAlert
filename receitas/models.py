@@ -4,9 +4,9 @@ from usuarios.models import Medico, Paciente
 from alarmes.models import Alarme
 
 class Receita(models.Model):
-    medico = models.ForeignKey(Medico, on_delete=models.CASCADE) # Médico que receitou
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE) # Paciente que irá fazer uso dos medicammentos
-    recomendacao = models.TextField(null=True, blank=True) # Recomendação do médico
-    dose = models.CharField(max_length=50) # Quantidade de medicamento a ser tomado (ex: 1 comprimido)
-    medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE) # Medicamento que será tomado
-    alarme = models.OneToOneField(Alarme, on_delete=models.CASCADE, null=True, blank=True) # Alarme para lembrar o paciente de tomar o medicamento
+    medico = models.ForeignKey(Medico, on_delete=models.CASCADE, help_text="Médico que irá preescrever a receita")
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, help_text="Paciente que irá receber a receita")
+    recomendacao = models.TextField(null=True, blank=True, help_text="Recomendações livres e adicionais sobre os medicamentos que foram receitados") # Recomendação do médico
+    dose = models.CharField(max_length=50, help_text="Dosagem (Ex: 20mg / 1 comprimido / 20 gotas)")
+    medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE, help_text="Medicamento que foi receitado")
+    alarme = models.OneToOneField(Alarme, on_delete=models.CASCADE, null=True, blank=True, help_text="Alarme para lembrar o paciente de tomar o medicamento")

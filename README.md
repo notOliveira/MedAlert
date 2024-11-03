@@ -33,6 +33,7 @@
 <br>
 
 ## Desativando ambiente virtual
+- Desative apenas se não irá mais utilizar o projeto
 
 <br>
 
