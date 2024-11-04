@@ -28,7 +28,7 @@ class Medico(models.Model):
     
 class Paciente(models.Model):
     user = models.OneToOneField(Usuario, on_delete=models.CASCADE, help_text="Usuário que é paciente")
-    idade = models.IntegerField(max_length= 3, help_text="Idade do paciente")
+    idade = models.IntegerField(help_text="Idade do paciente")
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name} - ({self.user.email})"
