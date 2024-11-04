@@ -4,12 +4,10 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from alarmes.models import Alarme
 from alarmes.serializers import AlarmeSerializer
-from usuarios.permissions import IsOwnerOrAdmin
 
 class AlarmeViewSet(viewsets.ModelViewSet):
     queryset = Alarme.objects.all()
     serializer_class = AlarmeSerializer
-    permission_classes = [IsOwnerOrAdmin]
 
     @action(detail=False, methods=['get'], permission_classes=[AllowAny])
     def ativos(self, request):

@@ -10,6 +10,10 @@ class IsOwnerOrAdmin(permissions.BasePermission):
         if request.user.is_staff:
             return True
         # Permite que o próprio usuário faça alterações em seu perfil
+
+        if hasattr(obj, 'user'):
+            return obj.user == request.user
+        
         return obj == request.user
 
 class ReadOnly(permissions.BasePermission):
