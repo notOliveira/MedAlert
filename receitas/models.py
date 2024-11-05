@@ -10,3 +10,6 @@ class Receita(models.Model):
     dose = models.CharField(max_length=50, help_text="Dosagem (Ex: 20mg / 1 comprimido / 20 gotas)")
     medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE, help_text="Medicamento que foi receitado")
     alarme = models.OneToOneField(Alarme, on_delete=models.CASCADE, null=True, blank=True, help_text="Alarme para lembrar o paciente de tomar o medicamento")
+
+    def __str__(self):
+        return f"{self.medico} - {self.paciente} - {self.medicamento}"
