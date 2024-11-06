@@ -42,7 +42,7 @@ CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS').split(';')
 
 INSTALLED_APPS = [
     'alarmes.apps.AlarmesConfig',
-    'medicamentos.apps.MedicamentosConfig',
+    # 'medicamentos.apps.MedicamentosConfig',
     'usuarios.apps.UsuariosConfig',
     'receitas.apps.ReceitasConfig',
     'django.contrib.admin',

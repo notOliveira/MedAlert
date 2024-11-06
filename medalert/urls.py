@@ -8,9 +8,9 @@ v1 = 'api/v1'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(f'{v1}/', include('alarmes.urls')),
-    path(f'{v1}/', include('medicamentos.urls')),
     path(f'{v1}/', include('usuarios.urls')),
     path(f'{v1}/', include('receitas.urls')),
     re_path(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
+    # path(f'{v1}/', include('medicamentos.urls')),
     # re_path(r'^media/(?P<path>.*)$', serve,{'document_root': settings.MEDIA_ROOT}),
 ]
