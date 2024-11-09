@@ -7,4 +7,4 @@ class Alarme(models.Model):
     medicamento = models.CharField(max_length=50, help_text="Nome do medicamento")
 
     def __str__(self):
-        return f"Alarme para {self.medicamento.nome}"
+        return f"Alarme para {self.medicamento}"

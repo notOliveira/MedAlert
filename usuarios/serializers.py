@@ -60,7 +60,6 @@ class RegistroSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
-        # Remover a senha de confirmação antes de criar o usuário
         validated_data.pop('password2')
 
         # Criar o usuário
@@ -77,16 +76,15 @@ class RegistroSerializer(serializers.ModelSerializer):
 
         if user_type == 'paciente':
             # Criar paciente
-            idade = validated_data.pop('idade', None)  # Retirar idade do validated_data
+            idade = validated_data.pop('idade', None)
             Paciente.objects.create(user=usuario, idade=idade)
-            raise UsuarioCriadoComSucesso("Usuário criado com sucesso!")  # Levanta a exceção de sucesso
+            raise UsuarioCriadoComSucesso("Usuário criado com sucesso!")
 
-        # Se necessário, adicione aqui o código para criar médicos
+        # Criar médico
         elif user_type == 'medico':
-            # Aqui, você pode adicionar a lógica para criar um médico, se necessário
-            crm = validated_data.pop('crm')  # Exemplo de como pegar o CRM
-            estado = validated_data.pop('estado')  # Exemplo de como pegar o estado
-            especialidade = validated_data.pop('especialidade')  # Exemplo de como pegar a especialidade
+            crm = validated_data.pop('crm')
+            estado = validated_data.pop('estado')
+            especialidade = validated_data.pop('especialidade')
             Medico.objects.create(user=usuario, crm=crm, estado=estado, especialidade=especialidade)
             raise UsuarioCriadoComSucesso("Usuário criado com sucesso!")  # Levanta a exceção de sucesso
 
