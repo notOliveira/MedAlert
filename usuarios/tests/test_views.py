@@ -57,14 +57,17 @@ class PacienteViewSetTest(APITestCase):
 class MedicoViewSetTest(APITestCase):
 
     def setUp(self):
-        # Cria um usuário e um médico
-        self.usuario = Usuario.objects.create_user(
-            email="medico@example.com",
-            username="medico",
+        # Cria um superusuário para realizar as operações de criação
+        self.superuser = Usuario.objects.create_superuser(
+            email="admin@example.com",
+            username="admin",
             password="password123"
         )
+        # Autentica o superusuário
+        self.client.force_authenticate(user=self.superuser)
+        # Cria um médico associado ao superusuário
         self.medico = Medico.objects.create(
-            user=self.usuario,
+            user=self.superuser,
             crm="123456",
             estado="SP",
             especialidade="CAR"
@@ -80,7 +83,7 @@ class MedicoViewSetTest(APITestCase):
         # Testa o endpoint POST para criar um novo médico
         url = reverse('medico-list')
         data = {
-            "user": self.usuario.id,
+            "user": self.superuser.id,
             "crm": "654321",
             "estado": "RJ",
             "especialidade": "PED"
