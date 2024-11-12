@@ -1,54 +1,25 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from usuarios.models import Usuario, Paciente, Medico
-from usuarios.constants import ESPECIALIDADES, ESTADOS_BRASIL
+from usuarios.models import Usuario
+from usuarios.constants import USER_TYPES, SPECIALITIES, BRAZIL_STATES
 
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
         fields = ['id', 'email', 'username', 'first_name', 'last_name']
 
-class MedicoSerializer(serializers.ModelSerializer):
-    estado = serializers.ChoiceField(choices=ESTADOS_BRASIL)
-    especialidade = serializers.ChoiceField(choices=ESPECIALIDADES)
-
-    class Meta:
-        model = Medico
-        fields = ['id', 'user', 'crm', 'estado', 'especialidade']
-
-    def create(self, validated_data):
-        user_data = validated_data.pop('user')
-        usuario = Usuario.objects.create(**user_data)
-        medico = Medico.objects.create(user=usuario, **validated_data)
-        return medico
-
-class PacienteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Paciente
-        fields = ['id', 'user', 'idade']
-
-    def create(self, validated_data):
-        user_data = validated_data.pop('user')
-        usuario = Usuario.objects.create(**user_data)
-        paciente = Paciente.objects.create(user=usuario, **validated_data)
-        return paciente
-
-class UsuarioCriadoComSucesso(Exception):
-    pass
-
 class RegistroSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True, min_length=8)
     password2 = serializers.CharField(write_only=True, min_length=8)
-    user_type = serializers.ChoiceField(choices=['medico', 'paciente'])
-    idade = serializers.IntegerField(required=False)  # Campo opcional
+    user_type = serializers.ChoiceField(choices=USER_TYPES)
+    idade = serializers.IntegerField(required=False)
     crm = serializers.CharField(required=False)
-    estado = serializers.CharField(required=False)
-    especialidade = serializers.CharField(required=False)
-    
+    estado = serializers.ChoiceField(choices=BRAZIL_STATES, required=False)
+    especialidade = serializers.ChoiceField(choices=SPECIALITIES, required=False)
 
     class Meta:
         model = Usuario
-        fields = ['email', 'username', 'password1', 'password2', 'first_name', 'last_name', 'user_type', 'idade', 'crm', 'estado', 'especialidade']
+        fields = ['email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'user_type', 'idade', 'crm', 'estado', 'especialidade']
         extra_kwargs = {
             'email': {'validators': [UniqueValidator(queryset=Usuario.objects.all())]},
             'username': {'validators': [UniqueValidator(queryset=Usuario.objects.all())]},
@@ -58,34 +29,30 @@ class RegistroSerializer(serializers.ModelSerializer):
         if data['password1'] != data['password2']:
             raise serializers.ValidationError("As senhas não coincidem.")
         return data
-    
+
     def create(self, validated_data):
+        # Remover password1 e password2 do validated_data
+        password = validated_data.pop('password1')
         validated_data.pop('password2')
 
-        # Criar o usuário
+        # Criar o usuário com os dados básicos
         usuario = Usuario(
             email=validated_data['email'],
             username=validated_data['username'],
             first_name=validated_data.get('first_name', ''),
-            last_name=validated_data.get('last_name', '')
+            last_name=validated_data.get('last_name', ''),
+            user_type=validated_data.get('user_type', 'PAC')
         )
-        usuario.set_password(validated_data['password1'])
+        usuario.set_password(password)
         usuario.save()
 
-        user_type = validated_data.pop('user_type')
+        # Verificar o tipo de usuário e criar campos adicionais se necessário
+        if usuario.user_type == 'PAC':
+            usuario.idade = validated_data.get('idade')
+        elif usuario.user_type == 'MED':
+            usuario.crm = validated_data.get('crm')
+            usuario.estado = validated_data.get('estado')
+            usuario.especialidade = validated_data.get('especialidade')
 
-        if user_type == 'paciente':
-            # Criar paciente
-            idade = validated_data.pop('idade', None)
-            Paciente.objects.create(user=usuario, idade=idade)
-            raise UsuarioCriadoComSucesso("Usuário criado com sucesso!")
-
-        # Criar médico
-        elif user_type == 'medico':
-            crm = validated_data.pop('crm')
-            estado = validated_data.pop('estado')
-            especialidade = validated_data.pop('especialidade')
-            Medico.objects.create(user=usuario, crm=crm, estado=estado, especialidade=especialidade)
-            raise UsuarioCriadoComSucesso("Usuário criado com sucesso!")  # Levanta a exceção de sucesso
-
-        raise serializers.ValidationError("Tipo de usuário inválido.")
+        usuario.save()
+        return usuario

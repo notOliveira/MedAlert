@@ -1,6 +1,6 @@
 # Siglas e estados do Brasil
 
-ESTADOS_BRASIL = [
+BRAZIL_STATES = [
         ('AC', 'Acre'),
         ('AL', 'Alagoas'),
         ('AP', 'Amapá'),
@@ -33,7 +33,7 @@ ESTADOS_BRASIL = [
 # Especialidades que são reconhecidas pelo Conselho Federal de Medicina
 # https://sistemas.cfm.org.br/normas/visualizar/resolucoes/BR/2018/2221
 
-ESPECIALIDADES = [
+SPECIALITIES = [
         (1, 'Acupuntura'),
         (2, 'Alergia e Imunologia'),
         (3, 'Anestesiologia'),
@@ -89,4 +89,10 @@ ESPECIALIDADES = [
         (53, 'Radioterapia'),
         (54, 'Reumatologia'),
         (55, 'Urologia'),
+    ]
+
+# Tipos de usuários que podem ser cadastrados no sistema
+USER_TYPES = [
+        ('PAC', 'Paciente'),
+        ('MED', 'Médico'),
     ]

@@ -7,8 +7,6 @@ router = DefaultRouter()
 
 # Ajustes nos basenames para manter os nomes nos testes
 router.register(r'usuarios', views.UsuarioViewSet, basename='usuario')
-router.register(r'pacientes', views.PacienteViewSet, basename='paciente')
-router.register(r'medicos', views.MedicoViewSet, basename='medico')
 
 urlpatterns = [
     path('', include(router.urls)),
