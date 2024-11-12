@@ -18,7 +18,7 @@ class Medico(models.Model):
     user = models.OneToOneField(Usuario, on_delete=models.CASCADE, help_text="Usuário que é médico")
     crm = models.CharField(max_length=10, help_text="Número do CRM do médico")
     estado = models.CharField(max_length=2, choices=ESTADOS_BRASIL, help_text="Sigla do estado onde o médico atua")
-    especialidade = models.CharField(max_length=3, choices=ESPECIALIDADES, help_text="Número da especialidade do médico")
+    especialidade = models.IntegerField(choices=ESPECIALIDADES, help_text="Número da especialidade do médico")
 
     class Meta:
         unique_together = ('crm', 'estado')
