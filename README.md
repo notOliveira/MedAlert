@@ -67,11 +67,13 @@
 
 <br>
 
-## Criando super usuário
+## Criando dados para exemplo
 
 ```
-\> python manage.py createsuperuser
+\> python manage.py create_data
 ```
+
+- Irá criar um superusuário e alguns dados de médicos, pacientes e receitas.
 
 <br>
 
