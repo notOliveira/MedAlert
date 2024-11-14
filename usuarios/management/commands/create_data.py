@@ -52,26 +52,34 @@ class Command(BaseCommand):
                 )
                 pacientes.append(paciente)
 
-            # Criando alarmes
+            # Criando alarmes com medicamentos 1 a 6
             alarmes = []
-            for i in range(3):
+            for i in range(6):  # Seis alarmes no total
                 alarme = Alarme.objects.create(
                     inicio=timezone.now(),
                     intervalo_horas=6,
                     duracao_dias=randint(1, 7),
-                    medicamento=f'Medicamento {i+1}'
+                    medicamento=f'Medicamento {i+1}'  # Medicamentos de 1 a 6
                 )
                 alarmes.append(alarme)
 
-            # Criando receitas
+            # Criando duas receitas para cada paciente com medicamentos 1 a 6
             for i in range(3):
                 Receita.objects.create(
                     medico=medicos[i],
                     paciente=pacientes[i],
-                    alarme=alarmes[i],
+                    alarme=alarmes[i * 2],  # Medicamentos 1, 3, 5 para cada paciente
                     recomendacao='Tomar em jejum',
                     dose='1 comprimido',
-                    medicamento=f'Medicamento {i+1}'
+                    medicamento=f'Medicamento {i * 2 + 1}'
+                )
+                Receita.objects.create(
+                    medico=medicos[i],
+                    paciente=pacientes[i],
+                    alarme=alarmes[i * 2 + 1],  # Medicamentos 2, 4, 6 para cada paciente
+                    recomendacao='Após refeições',
+                    dose='2 comprimidos',
+                    medicamento=f'Medicamento {i * 2 + 2}'
                 )
 
             self.stdout.write(self.style.SUCCESS('Médicos, pacientes, receitas e alarmes criados com sucesso.'))

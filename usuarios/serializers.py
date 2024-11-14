@@ -31,8 +31,17 @@ class RegistroSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
+        # Validar senhas
         if data['password1'] != data['password2']:
             raise serializers.ValidationError("As senhas não coincidem.")
+        
+        # Validações de acordo com o tipo de usuário
+        if data['user_type'] == 'MED':
+            if not all([data.get('crm'), data.get('estado'), data.get('especialidade')]):
+                raise serializers.ValidationError("CRM, estado e especialidade são obrigatórios para médicos.")
+        elif data['user_type'] == 'PAC' and not data.get('idade'):
+            raise serializers.ValidationError("A idade é obrigatória para pacientes.")
+        
         return data
 
     def create(self, validated_data):
