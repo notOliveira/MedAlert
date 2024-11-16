@@ -11,7 +11,7 @@ class ReceitaViewSet(viewsets.ModelViewSet):
     serializer_class = ReceitaSerializer
 
     @action(detail=False, methods=['get'])
-    def user(self, request):
+    def usuario(self, request):
         user = request.user
         receitas = Receita.objects.filter(paciente=user)
         serializer = self.get_serializer(receitas, many=True)
