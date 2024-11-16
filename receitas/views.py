@@ -1,5 +1,7 @@
+from django.core.exceptions import PermissionDenied
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from usuarios.models import Usuario
 from alarmes.models import Alarme
@@ -9,6 +11,18 @@ from receitas.serializers import ReceitaSerializer
 class ReceitaViewSet(viewsets.ModelViewSet):
     queryset = Receita.objects.all()
     serializer_class = ReceitaSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Obtém o usuário autenticado (médico)
+        user = self.request.user
+        
+        # Verifica se o usuário é realmente um médico antes de associá-lo
+        if not user.is_medico:  # Supondo que há uma flag no User model
+            raise PermissionDenied("Apenas médicos podem criar receitas.")
+        
+        # Adiciona automaticamente o campo 'medico' com o ID do usuário
+        serializer.save(medico=user)
 
     @action(detail=False, methods=['get'])
     def usuario(self, request):
@@ -24,7 +38,7 @@ class ReceitaViewSet(viewsets.ModelViewSet):
         
         # Verificar se o usuário é um médico
         if user.user_type != 'MED':
-            return Response({"detail": "Apenas médicos podem criar receitas."}, status=status.HTTP_403_FORBIDDEN)
+            return PermissionDenied("Apenas médicos podem criar receitas.")
         
         data = request.data
         paciente_email = data.get('paciente')
