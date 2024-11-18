@@ -9,9 +9,18 @@ from receitas.models import Receita
 from receitas.serializers import ReceitaSerializer
 
 class ReceitaViewSet(viewsets.ModelViewSet):
-    queryset = Receita.objects.all()
     serializer_class = ReceitaSerializer
     permission_classes = [IsAuthenticated]
+
+    # Método que poderá ser usado apenas por administradores
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            email = self.request.query_params.get('email')
+            if email:
+                return Receita.objects.filter(paciente__email=email)
+            return Receita.objects.all()
+        return Receita.objects.filter(paciente=user)
 
     def perform_create(self, serializer):
         # Obtém o usuário autenticado (médico)
@@ -24,6 +33,7 @@ class ReceitaViewSet(viewsets.ModelViewSet):
         # Adiciona automaticamente o campo 'medico' com o ID do usuário
         serializer.save(medico=user)
 
+    # Visualizar receitas do usuário logado
     @action(detail=False, methods=['get'])
     def usuario(self, request):
         user = request.user
