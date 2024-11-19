@@ -19,7 +19,8 @@ class Command(BaseCommand):
                     username='admin',
                     first_name='Admin',
                     last_name='User',
-                    password='admin'
+                    password='admin',
+                    user_type='ADM'
                 )
 
             # Criando médicos

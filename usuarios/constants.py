@@ -93,6 +93,7 @@ SPECIALITIES = [
 
 # Tipos de usuários que podem ser cadastrados no sistema
 USER_TYPES = [
+        ('ADM', 'Administrador'),
         ('PAC', 'Paciente'),
         ('MED', 'Médico'),
     ]

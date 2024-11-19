@@ -22,6 +22,10 @@ class Usuario(AbstractUser):
     @property
     def is_paciente(self):
         return self.user_type == 'PAC'
+    
+    @property
+    def is_admin(self):
+        return self.user_type == 'ADM'
 
     def __str__(self):
         if self.is_medico:
