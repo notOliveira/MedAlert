@@ -7,7 +7,7 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Apenas admins têm acesso total
-        if request.user.is_staff:
+        if request.user.is_admin:
             return True
         # Permite que o próprio usuário faça alterações em seu perfil
 
