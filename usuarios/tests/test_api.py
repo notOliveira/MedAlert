@@ -1,18 +1,21 @@
 from django.test import TestCase
 from django.urls import reverse
 from usuarios.models import Usuario
-import os
+from colorama import Fore, init
+
+init(autoreset=True)
 
 class UsuarioAPITestCase(TestCase):
 
     def setUp(self):
         """Executa antes de cada teste."""
-        self.test_name = self._testMethodName
-        print(f"\n\n==================== INÍCIO DO TESTE: {self.test_name} ====================\n")
+        test_name = self._testMethodName
+        print(f"\n\n\n{Fore.YELLOW}==================== BEGIN OF TEST: {test_name} ====================")
 
     def tearDown(self):
         """Executa após cada teste."""
-        print(f"\n==================== FIM DO TESTE ====================\n\n")
+        test_name = self._testMethodName
+        print(f"\n{Fore.GREEN}==================== ENDING TEST: {test_name} ====================\n\n\n")
         
     def test_registro_paciente(self):
         """Testa a criação de um novo paciente via API"""
