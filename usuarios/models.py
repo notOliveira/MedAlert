@@ -33,3 +33,6 @@ class Usuario(AbstractUser):
         
         elif self.is_paciente:
             return f'Paciente - {self.email}'
+        
+        elif self.is_admin:
+            return f'Administrador - {self.email}'
