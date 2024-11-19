@@ -10,12 +10,12 @@ class UsuarioAPITestCase(TestCase):
     def setUp(self):
         """Executa antes de cada teste."""
         test_name = self._testMethodName
-        print(f"\n\n\n{Fore.YELLOW}==================== BEGIN OF TEST: {test_name} ====================")
+        print(f"\n\n\n{Fore.YELLOW}==================== INÍCIO DO TESTE: {test_name} ====================")
 
     def tearDown(self):
         """Executa após cada teste."""
         test_name = self._testMethodName
-        print(f"\n{Fore.GREEN}==================== ENDING TEST: {test_name} ====================\n\n\n")
+        print(f"\n{Fore.GREEN}==================== FINAL DO TESTE: {test_name} ====================\n\n\n")
         
     def test_registro_paciente(self):
         """Testa a criação de um novo paciente via API"""
