@@ -1,10 +1,45 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 from usuarios.constants import SPECIALITIES, BRAZIL_STATES, USER_TYPES
 
+class UsuarioManager(BaseUserManager):
+    """
+    Gerenciador personalizado para o modelo Usuario.
+    """
+    def create_user(self, email, username, password=None, **extra_fields):
+        if not email:
+            raise ValueError("O campo 'email' é obrigatório.")
+        # Validar os campos obrigatórios em cada tipo
+        # Caso o user_type seja 'MED', verificar se crm e estado estão preenchidos
+        if extra_fields.get('user_type') == 'MED':
+            if not extra_fields.get('crm') or not extra_fields.get('estado') or not extra_fields.get('especialidade'):
+                raise ValueError("Os campos 'crm', 'estado' e 'especialidade' são obrigatórios para médicos.")
+        # Caso o user_type seja 'PAC', verificar se idade está preenchido
+        if extra_fields.get('user_type') == 'PAC':
+            if not extra_fields.get('idade'):
+                raise ValueError("O campo 'idade' é obrigatório para pacientes.")
+        
+        email = self.normalize_email(email)
+        user = self.model(email=email, username=username, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, username, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+
+        if not extra_fields.get('is_staff'):
+            raise ValueError('Superusuários devem ter is_staff=True.')
+        if not extra_fields.get('is_superuser'):
+            raise ValueError('Superusuários devem ter is_superuser=True.')
+
+        return self.create_user(email, username, password, **extra_fields)
+
 class Usuario(AbstractUser):
-    email = models.EmailField(unique=True, help_text="E-mail do usuário")
+    objects = UsuarioManager()
+    email = models.EmailField(unique=True, null=False, blank=False, help_text="Endereço de e-mail")
     username = models.CharField(max_length=150, unique=True, help_text="Nome de usuário")
     user_type = models.CharField(max_length=3, choices=USER_TYPES, default='PAC', help_text="Tipo de usuário")
     idade = models.IntegerField(null=True, blank=True)

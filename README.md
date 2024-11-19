@@ -11,7 +11,7 @@
 ### Criando ambiente virtual
 
 ```
-\> python -m venv <name venv>
+python -m venv <name venv>
 ```
 
 <br>
@@ -21,13 +21,13 @@
 #### Linux
 
 ```
-\> source venv/bin/activate
+source venv/bin/activate
 ```
 
 #### Windows
 
 ```
-\> .\venv\Scripts\activate
+.\venv\Scripts\activate
 ```
 
 <br>
@@ -38,7 +38,7 @@
 <br>
 
 ```
-\> deactivate
+deactivate
 ```
 
 ---
@@ -49,7 +49,7 @@
 - Instale na venv preferencialmente
 
 ```
-(venv) \> pip install -r requirements.txt
+(venv) pip install -r requirements.txt
 ```
 <br>
 
@@ -61,8 +61,8 @@
 ## Aplicando as migrações
 
 ```
-\> python manage.py makemigrations // Provavelmente não será necessário, porque deixarei um arquivo com a migração inicial
-\> python manage.py migrate
+python manage.py makemigrations // Provavelmente não será necessário, porque deixarei um arquivo com a migração inicial
+python manage.py migrate
 ```
 
 <br>
@@ -70,7 +70,7 @@
 ## Criando dados para exemplo
 
 ```
-\> python manage.py create_data
+python manage.py create_data
 ```
 
 - Irá criar um superusuário e alguns dados de médicos, pacientes e receitas.
@@ -80,7 +80,7 @@
 ## Coletando arquivos estáticos
 
 ```
-\> python manage.py collectstatic
+python manage.py collectstatic
 ```
 
 <br>
@@ -89,7 +89,7 @@
 
 
 ```
-\> python manage.py runserver <endereço IP>:<port>
+python manage.py runserver <endereço IP>:<port>
 ```
 
 <br>
@@ -97,7 +97,7 @@
 OBS: Recomendo rodar com o seguinte comando:
 
 ```
-\> python.exe .\manage.py runserver 0.0.0.0:8000
+python.exe .\manage.py runserver 0.0.0.0:8000
 ```
 
 <br>
@@ -136,3 +136,11 @@ PROD_PORT=?
 EMAIL_HOST_USER=?
 EMAIL_HOST_PASSWORD=?
 ```
+
+## Para rodar os testes
+
+```
+python manage.py test --verbosity=2
+```
+
+- OBS: o parâmetro opctional "--verbosity=n" também pode ser usado, com "n" sendo um número de 0 a 3 que identifica os níveis de logs que serão exibidos nos testes, com 0 sendo uma quantidade menor e 3 sendo a quantidade maior. O verbosity 2 é o mais recomendado.
