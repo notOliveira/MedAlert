@@ -12,79 +12,84 @@ class ReceitaViewSet(viewsets.ModelViewSet):
     serializer_class = ReceitaSerializer
     permission_classes = [IsAuthenticated]
 
-    # Método que poderá ser usado apenas por administradores
     def get_queryset(self):
         user = self.request.user
-        
-        # Verifica se o usuário é um superusuário
+
+        # Administradores têm acesso a todas as receitas ou podem filtrar por email
         if user.is_superuser:
             email = self.request.query_params.get('email')
-
-            # Verifica se foi passado um email como parâmetro
             if email:
                 try:
                     user_requested = Usuario.objects.get(email=email)
                     return Receita.objects.filter(paciente=user_requested)
                 except Usuario.DoesNotExist:
-                    return Response({"detail": "Usuário não encontrado ou não é um usuário válido."}, status=status.HTTP_400_BAD_REQUEST)
-                
-            # Retorna todas as receitas caso não tenha sido passado um email
+                    return Receita.objects.none()
             return Receita.objects.all()
-            
+
+        # Usuário logado como paciente visualiza suas receitas
         return Receita.objects.filter(paciente=user)
 
     def perform_create(self, serializer):
-        # Obtém o usuário autenticado (médico)
         user = self.request.user
-        
-        # Verifica se o usuário é realmente um médico antes de associá-lo
-        if not user.is_medico:  # Supondo que há uma flag no User model
+
+        # Apenas médicos podem criar receitas
+        if not user.is_medico:
             raise PermissionDenied("Apenas médicos podem criar receitas.")
         
-        # Adiciona automaticamente o campo 'medico' com o ID do usuário
         serializer.save(medico=user)
 
-    # Visualizar receitas do usuário logado
-    @action(detail=False, methods=['get'])
+    # Visualizar receitas do usuário logado como paciente
+    @action(detail=False, methods=['get'], url_path='user')
     def usuario(self, request):
         user = request.user
         receitas = Receita.objects.filter(paciente=user)
+
+        # Adiciona validação se o usuário não tiver receitas
+        if not receitas.exists():
+            return Response({"detail": "Nenhuma receita encontrada para o usuário."}, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = self.get_serializer(receitas, many=True)
         return Response(serializer.data)
-    
+
     # Criar receita e alarme no mesmo endpoint
     @action(detail=False, methods=['post'], url_path='receita-alarme')
     def receita_alarme(self, request):
         user = request.user
-        
-        # Verificar se o usuário é um médico
+
+        # Apenas médicos podem criar receitas
         if user.user_type != 'MED':
             return PermissionDenied("Apenas médicos podem criar receitas.")
-        
+
         data = request.data
         paciente_email = data.get('paciente')
-        
+
         # Validar existência do paciente
         try:
             paciente = Usuario.objects.get(email=paciente_email)
         except Usuario.DoesNotExist:
             return Response({"detail": "Paciente não encontrado ou não é um usuário válido."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Criar o alarme, inserir o mesmo nome em ambos caso um esteja errado 
-        alarme_data = data.pop('alarme')
-        alarme_data['medicamento'] = data['medicamento']
-        alarme = Alarme.objects.create(**alarme_data)
+
+        # Criar o alarme
+        try:
+            alarme_data = data.pop('alarme')
+            alarme_data['medicamento'] = data['medicamento']
+            alarme = Alarme.objects.create(**alarme_data)
+        except KeyError as e:
+            return Response({"detail": f"Campo ausente ou inválido: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Criar a receita
-        receita_data = {
-            'medico': user,
-            'paciente': paciente,
-            'alarme': alarme,
-            'recomendacao': data['recomendacao'],
-            'dose': data['dose'],
-            'medicamento': data['medicamento'],
-        }
-        receita = Receita.objects.create(**receita_data)
+        try:
+            receita_data = {
+                'medico': user,
+                'paciente': paciente,
+                'alarme': alarme,
+                'recomendacao': data.get('recomendacao', ''),
+                'dose': data['dose'],
+                'medicamento': data['medicamento'],
+            }
+            receita = Receita.objects.create(**receita_data)
+        except KeyError as e:
+            return Response({"detail": f"Campo ausente ou inválido: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Retornar os dados criados
         return Response(
@@ -107,3 +112,20 @@ class ReceitaViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_201_CREATED,
         )
+
+    # Action para visualizar receitas prescritas por um médico específico
+    @action(detail=False, methods=['get'], url_path='preescritos')
+    def preescritos(self, request):
+        user = self.request.user
+
+        # Apenas médicos podem acessar essa action
+        if not user.is_medico:
+            return Response({"detail": "Apenas médicos podem acessar receitas prescritas."}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Retornar receitas prescritas pelo médico logado
+        receitas = Receita.objects.filter(medico=user)
+        if not receitas.exists():
+            return Response({"detail": "Nenhuma receita encontrada para o médico logado."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(receitas, many=True)
+        return Response(serializer.data)
