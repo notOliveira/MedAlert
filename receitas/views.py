@@ -15,11 +15,22 @@ class ReceitaViewSet(viewsets.ModelViewSet):
     # Método que poderá ser usado apenas por administradores
     def get_queryset(self):
         user = self.request.user
+        
+        # Verifica se o usuário é um superusuário
         if user.is_superuser:
             email = self.request.query_params.get('email')
+
+            # Verifica se foi passado um email como parâmetro
             if email:
-                return Receita.objects.filter(paciente__email=email)
+                try:
+                    user_requested = Usuario.objects.get(email=email)
+                    return Receita.objects.filter(paciente=user_requested)
+                except Usuario.DoesNotExist:
+                    return Response({"detail": "Usuário não encontrado ou não é um usuário válido."}, status=status.HTTP_400_BAD_REQUEST)
+                
+            # Retorna todas as receitas caso não tenha sido passado um email
             return Receita.objects.all()
+            
         return Receita.objects.filter(paciente=user)
 
     def perform_create(self, serializer):
