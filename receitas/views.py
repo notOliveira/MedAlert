@@ -1,4 +1,5 @@
 from django.core.exceptions import PermissionDenied
+from django.db.utils import IntegrityError
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -33,13 +34,13 @@ class ReceitaViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         # Apenas médicos podem criar receitas
-        if not user.is_medico:
+        if not user.is_paciente:
             raise PermissionDenied("Apenas médicos podem criar receitas.")
         
         serializer.save(medico=user)
 
     # Visualizar receitas do usuário logado como paciente
-    @action(detail=False, methods=['get'], url_path='user')
+    @action(detail=False, methods=['get'], url_path='usuario')
     def usuario(self, request):
         user = request.user
         receitas = Receita.objects.filter(paciente=user)
@@ -54,8 +55,8 @@ class ReceitaViewSet(viewsets.ModelViewSet):
         user = request.user
 
         # Apenas médicos podem criar receitas
-        if user.user_type != 'MED':
-            return PermissionDenied("Apenas médicos podem criar receitas.")
+        if user.is_paciente:
+            return Response({"detail": "Apenas médicos podem criar receitas."}, status=status.HTTP_403_FORBIDDEN)
 
         data = request.data
         paciente_email = data.get('paciente')
@@ -65,14 +66,22 @@ class ReceitaViewSet(viewsets.ModelViewSet):
             paciente = Usuario.objects.get(email=paciente_email)
         except Usuario.DoesNotExist:
             return Response({"detail": "Paciente não encontrado ou não é um usuário válido."}, status=status.HTTP_400_BAD_REQUEST)
-
+        
+        for campo in data:
+            if campo not in ['paciente', 'medicamento', 'dose', 'recomendacao', 'alarme']:
+                return Response({"detail": f"Campo inválido: {campo}"}, status=status.HTTP_400_BAD_REQUEST)
         # Criar o alarme
         try:
             alarme_data = data.pop('alarme')
+
+            # Validar campos obrigatórios
+            for campo in ['inicio', 'intervalo_horas', 'duracao_dias','medicamento']:
+                if campo not in alarme_data:
+                    return Response({"detail": f"Campo ausente ou inválido: {campo}"}, status=status.HTTP_400_BAD_REQUEST)
             alarme_data['medicamento'] = data['medicamento']
             alarme = Alarme.objects.create(**alarme_data)
-        except KeyError as e:
-            return Response({"detail": f"Campo ausente ou inválido: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"detail": f"Campo ausente: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Criar a receita
         try:
@@ -111,12 +120,12 @@ class ReceitaViewSet(viewsets.ModelViewSet):
         )
 
     # Action para visualizar receitas prescritas por um médico específico
-    @action(detail=False, methods=['get'], url_path='preescritos')
-    def preescritos(self, request):
+    @action(detail=False, methods=['get'], url_path='preescritas')
+    def preescritas(self, request):
         user = self.request.user
 
         # Apenas médicos podem acessar essa action
-        if not user.is_medico:
+        if user.is_paciente:
             return Response({"detail": "Apenas médicos podem acessar receitas prescritas."}, status=status.HTTP_403_FORBIDDEN)
         
         # Retornar receitas prescritas pelo médico logado

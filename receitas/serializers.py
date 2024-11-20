@@ -6,6 +6,7 @@ from usuarios.serializers import UsuarioReceitaSerializer
 class ReceitaSerializer(serializers.ModelSerializer):
     alarme = AlarmeSerializer(read_only=True)
     medico = UsuarioReceitaSerializer(read_only=True)
+    paciente = UsuarioReceitaSerializer(read_only=True)
 
     class Meta:
         model = Receita
