@@ -43,11 +43,8 @@ class ReceitaViewSet(viewsets.ModelViewSet):
     def usuario(self, request):
         user = request.user
         receitas = Receita.objects.filter(paciente=user)
-
-        # Adiciona validação se o usuário não tiver receitas
-        if not receitas.exists():
-            return Response({"detail": "Nenhuma receita encontrada para o usuário."}, status=status.HTTP_404_NOT_FOUND)
         
+        # Retorna lista vazia se não houver receitas
         serializer = self.get_serializer(receitas, many=True)
         return Response(serializer.data)
 
@@ -124,8 +121,5 @@ class ReceitaViewSet(viewsets.ModelViewSet):
         
         # Retornar receitas prescritas pelo médico logado
         receitas = Receita.objects.filter(medico=user)
-        if not receitas.exists():
-            return Response({"detail": "Nenhuma receita encontrada para o médico logado."}, status=status.HTTP_404_NOT_FOUND)
-
         serializer = self.get_serializer(receitas, many=True)
         return Response(serializer.data)
