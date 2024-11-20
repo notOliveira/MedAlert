@@ -39,7 +39,6 @@ class UsuarioAPITestCase(TestCase):
         usuario = Usuario.objects.get(email="novo_paciente@example.com")
         self.assertEqual(usuario.email, "novo_paciente@example.com")
         
-
     def test_registro_paciente_sem_idade(self):
         """Testa a criação de paciente sem o campo idade."""
         url = reverse('registro')
@@ -58,7 +57,6 @@ class UsuarioAPITestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('non_field_errors', response.data)
         
-
     def test_login_usuario(self):
         """Testa o login de usuário via API"""
 
@@ -96,7 +94,6 @@ class UsuarioAPITestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('access', response.data)
         
-
     def test_login_usuario_invalido(self):
         """Testa o login de usuário com senha inválida"""
         
@@ -113,7 +110,6 @@ class UsuarioAPITestCase(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertIn('detail', response.data)
         
-
     def test_registro_medico_sem_crm(self):
         """Testa a criação de médico sem o campo CRM."""
         
@@ -135,7 +131,6 @@ class UsuarioAPITestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('non_field_errors', response.data)
         
-
     def test_registro_medico_sem_estado(self):
         """Testa a criação de médico sem o campo estado."""
         
@@ -157,7 +152,6 @@ class UsuarioAPITestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('non_field_errors', response.data)
         
-
     def test_registro_medico_sem_especialidade(self):
         """Testa a criação de médico sem o campo especialidade."""
         
