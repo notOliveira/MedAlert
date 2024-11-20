@@ -45,11 +45,14 @@ class ReceitaMedicoAPITestCase(TestCase):
         self.token_medico = response.data['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token_medico}')
 
-        print(f"\n\n{Fore.YELLOW}==================== INÍCIO DO TESTE ====================\n")
+        test_name = self._testMethodName
+
+        print(f"\n\n{Fore.YELLOW}==================== INÍCIO DO TESTE {test_name} ====================\n")
 
     def tearDown(self):
         """Executa após cada teste."""
-        print(f"\n\n{Fore.GREEN}==================== FINAL DO TESTE ====================\n\n")
+        test_name = self._testMethodName
+        print(f"\n\n{Fore.GREEN}==================== FINAL DO TESTE {test_name} ====================\n\n")
 
     # Teste no endpoint /receitas/receita-alarme/
     def test_criar_receita_e_alarme(self):
@@ -64,6 +67,7 @@ class ReceitaMedicoAPITestCase(TestCase):
                 "inicio": "2024-11-21T08:00:00Z",
                 "intervalo_horas": 8,
                 "duracao_dias": 5,
+                "medicamento": "Paracetamol",
             },
         }
 
@@ -91,45 +95,66 @@ class ReceitaMedicoAPITestCase(TestCase):
     def test_visualizar_receitas_como_medico(self):
         """Testa se o médico consegue visualizar as receitas que prescreveu."""
         # Criar uma receita para o paciente
-        alarme = Alarme.objects.create(
-            inicio="2024-11-21T08:00:00Z",
-            intervalo_horas=8,
-            duracao_dias=7,
-            medicamento="Amoxicilina",
-        )
-        Receita.objects.create(
-            medico=self.medico,
-            paciente=self.paciente,
-            alarme=alarme,
-            recomendacao="Tomar com água",
-            dose="500mg",
-            medicamento="Amoxicilina",
-        )
+        
+        url = reverse('api-receitas-receita-alarme')
+        data = {
+            "paciente": self.paciente.email,
+            "medicamento": "Paracetamol",
+            "dose": "500mg",
+            "recomendacao": "Tomar após as refeições",
+            "alarme": {
+                "inicio": "2024-11-21T08:00:00Z",
+                "intervalo_horas": 8,
+                "duracao_dias": 5,
+                "medicamento": "Paracetamol",
+            },
+        }
+
+        response = self.client.post(url, data, format='json')
+
+        print(f'\nResponse: {response.data}')
+
+        self.assertEqual(response.status_code, 201)
 
         # Listar receitas
-        url = reverse('api-receitas-list')
+        url = reverse('api-receitas-preescritas')
         response = self.client.get(url, format='json')
+
+        print(f"\nReceitas prescritas: {response.data}")
+        
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['medicamento'], "Amoxicilina")
+        self.assertEqual(response.data[0]['medicamento'], "Paracetamol")
+        self.assertEqual(response.data[0]['paciente']['email'], self.paciente.email)
+        self.assertEqual(response.data[0]['medico']['email'], self.medico.email)
+        self.assertEqual(response.data[0]['recomendacao'], "Tomar após as refeições")
 
     def test_editar_receita_como_medico(self):
         """Testa se o médico consegue editar uma receita."""
         # Criar uma receita
-        alarme = Alarme.objects.create(
-            inicio="2024-11-21T08:00:00Z",
-            intervalo_horas=8,
-            duracao_dias=7,
-            medicamento="Ibuprofeno",
-        )
-        receita = Receita.objects.create(
-            medico=self.medico,
-            paciente=self.paciente,
-            alarme=alarme,
-            recomendacao="Tomar antes de dormir",
-            dose="200mg",
-            medicamento="Ibuprofeno",
-        )
+        url = reverse('api-receitas-receita-alarme')
+        data = {
+            "paciente": self.paciente.email,
+            "medicamento": "Paracetamol",
+            "dose": "500mg",
+            "recomendacao": "Tomar após as refeições",
+            "alarme": {
+                "inicio": "2024-11-21T08:00:00Z",
+                "intervalo_horas": 8,
+                "duracao_dias": 5,
+                "medicamento": "Paracetamol",
+            },
+        }
+
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, 201)
+        self.assertIn('receita', response.data)
+        self.assertIn('alarme', response.data)
+
+        receita = Receita.objects.get(id=response.data['receita']['id'])
+
+        print(f'\nReceita: {receita}')
 
         # Atualizar a receita
         url = reverse('api-receitas-detail', args=[receita.id])
@@ -139,6 +164,10 @@ class ReceitaMedicoAPITestCase(TestCase):
         }
         response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, 200)
+
+        nova_receta = Receita.objects.get(id=receita.id)
+
+        print(f'\nNova receita: {nova_receta}')
 
         receita.refresh_from_db()
         self.assertEqual(receita.recomendacao, "Tomar com leite para evitar dor de estômago")

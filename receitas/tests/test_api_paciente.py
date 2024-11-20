@@ -64,7 +64,7 @@ class ReceitaAPITestCase(TestCase):
             "alarme": {
                 "inicio": "2024-11-21T08:00:00Z",
                 "intervalo_horas": 8,
-                "duracao_dias": 5,
+                "duracao_dias": 5
             },
         }
 

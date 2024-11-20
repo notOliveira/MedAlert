@@ -24,7 +24,12 @@ class ReceitaViewSet(viewsets.ModelViewSet):
                 except Usuario.DoesNotExist:
                     return Receita.objects.none()
             return Receita.objects.all()
+        
+        if user.is_medico:
+            # Médicos podem ver receitas que prescreveram e receitas prescritas para eles
+            return Receita.objects.filter(medico=user) | Receita.objects.filter(paciente=user)
 
+        # Pacientes podem ver apenas receitas que foram prescritas para eles
         return Receita.objects.filter(paciente=user)
 
     def perform_create(self, serializer):
@@ -34,6 +39,16 @@ class ReceitaViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("Apenas médicos podem criar receitas.")
 
         serializer.save(medico=user)
+
+    def perform_update(self, serializer):
+        user = self.request.user
+        receita = self.get_object()
+
+        if user.is_medico and receita.medico == user:
+            # Médico pode atualizar receitas que prescreveu
+            serializer.save()
+        else:
+            raise PermissionDenied("Você não tem permissão para editar esta receita.")
 
     @action(detail=False, methods=['get'], url_path='usuario')
     def usuario(self, request):
@@ -106,7 +121,7 @@ class ReceitaViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    @action(detail=False, methods=['get'], url_path='receitas-medico')
+    @action(detail=False, methods=['get'], url_path='preescritas')
     def preescritas(self, request):
         user = self.request.user
 
