@@ -45,11 +45,11 @@ class ReceitaMedicoAPITestCase(TestCase):
         self.token_medico = response.data['access']
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.token_medico}')
 
-        print(f"\n\n{Fore.YELLOW}==================== INÍCIO DO TESTE ====================")
+        print(f"\n\n{Fore.YELLOW}==================== INÍCIO DO TESTE ====================\n")
 
     def tearDown(self):
         """Executa após cada teste."""
-        print(f"{Fore.GREEN}==================== FINAL DO TESTE ====================\n\n")
+        print(f"\n\n{Fore.GREEN}==================== FINAL DO TESTE ====================\n\n")
 
     # Teste no endpoint /receitas/receita-alarme/
     def test_criar_receita_e_alarme(self):

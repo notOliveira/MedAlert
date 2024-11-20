@@ -1,5 +1,4 @@
 from django.core.exceptions import PermissionDenied
-from django.db.utils import IntegrityError
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
