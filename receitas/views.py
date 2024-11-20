@@ -16,7 +16,6 @@ class ReceitaViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
 
-        # Administradores têm acesso a todas as receitas ou podem filtrar por email
         if user.is_superuser:
             email = self.request.query_params.get('email')
             if email:
@@ -27,63 +26,53 @@ class ReceitaViewSet(viewsets.ModelViewSet):
                     return Receita.objects.none()
             return Receita.objects.all()
 
-        # Usuário logado como paciente visualiza suas receitas
         return Receita.objects.filter(paciente=user)
 
     def perform_create(self, serializer):
         user = self.request.user
 
-        # Apenas médicos podem criar receitas
-        if not user.is_paciente:
+        if not user.is_medico:
             raise PermissionDenied("Apenas médicos podem criar receitas.")
-        
+
         serializer.save(medico=user)
 
-    # Visualizar receitas do usuário logado como paciente
     @action(detail=False, methods=['get'], url_path='usuario')
     def usuario(self, request):
         user = request.user
         receitas = Receita.objects.filter(paciente=user)
-        
-        # Retorna lista vazia se não houver receitas
         serializer = self.get_serializer(receitas, many=True)
         return Response(serializer.data)
 
-    # Criar receita e alarme no mesmo endpoint
     @action(detail=False, methods=['post'], url_path='receita-alarme')
     def receita_alarme(self, request):
-        user = request.user
+        user = self.request.user
 
-        # Apenas médicos podem criar receitas
-        if user.is_paciente:
+        if not user.is_medico:
             return Response({"detail": "Apenas médicos podem criar receitas."}, status=status.HTTP_403_FORBIDDEN)
 
         data = request.data
         paciente_email = data.get('paciente')
 
-        # Validar existência do paciente
         try:
             paciente = Usuario.objects.get(email=paciente_email)
         except Usuario.DoesNotExist:
             return Response({"detail": "Paciente não encontrado ou não é um usuário válido."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        for campo in data:
-            if campo not in ['paciente', 'medicamento', 'dose', 'recomendacao', 'alarme']:
-                return Response({"detail": f"Campo inválido: {campo}"}, status=status.HTTP_400_BAD_REQUEST)
-        # Criar o alarme
-        try:
-            alarme_data = data.pop('alarme')
 
-            # Validar campos obrigatórios
-            for campo in ['inicio', 'intervalo_horas', 'duracao_dias','medicamento']:
+        for campo in ['paciente', 'medicamento', 'dose', 'alarme']:
+            if campo not in data:
+                return Response({"detail": f"Campo ausente ou inválido: {campo}"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            alarme_data = data['alarme']
+            for campo in ['inicio', 'intervalo_horas', 'duracao_dias', 'medicamento']:
                 if campo not in alarme_data:
-                    return Response({"detail": f"Campo ausente ou inválido: {campo}"}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"detail": f"Campo ausente ou inválido no alarme: {campo}"}, status=status.HTTP_400_BAD_REQUEST)
+
             alarme_data['medicamento'] = data['medicamento']
             alarme = Alarme.objects.create(**alarme_data)
         except Exception as e:
-            return Response({"detail": f"Campo ausente: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": f"Erro ao criar alarme: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Criar a receita
         try:
             receita_data = {
                 'medico': user,
@@ -94,10 +83,9 @@ class ReceitaViewSet(viewsets.ModelViewSet):
                 'medicamento': data['medicamento'],
             }
             receita = Receita.objects.create(**receita_data)
-        except KeyError as e:
-            return Response({"detail": f"Campo ausente ou inválido: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"detail": f"Erro ao criar receita: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Retornar os dados criados
         return Response(
             {
                 "receita": {
@@ -119,16 +107,13 @@ class ReceitaViewSet(viewsets.ModelViewSet):
             status=status.HTTP_201_CREATED,
         )
 
-    # Action para visualizar receitas prescritas por um médico específico
-    @action(detail=False, methods=['get'], url_path='preescritas')
+    @action(detail=False, methods=['get'], url_path='receitas-medico')
     def preescritas(self, request):
         user = self.request.user
 
-        # Apenas médicos podem acessar essa action
-        if user.is_paciente:
+        if not user.is_medico:
             return Response({"detail": "Apenas médicos podem acessar receitas prescritas."}, status=status.HTTP_403_FORBIDDEN)
-        
-        # Retornar receitas prescritas pelo médico logado
+
         receitas = Receita.objects.filter(medico=user)
         serializer = self.get_serializer(receitas, many=True)
         return Response(serializer.data)
