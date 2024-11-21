@@ -72,7 +72,7 @@ class ReceitaViewSet(viewsets.ModelViewSet):
         except Usuario.DoesNotExist:
             return Response({"detail": "Paciente não encontrado ou não é um usuário válido."}, status=status.HTTP_400_BAD_REQUEST)
 
-        for campo in ['paciente', 'medicamento', 'dose', 'alarme']:
+        for campo in ['paciente', 'medicamento', 'dose', 'alarme', 'recomendacao']:
             if campo not in data:
                 return Response({"detail": f"Campo ausente ou inválido: {campo}"}, status=status.HTTP_400_BAD_REQUEST)
 
