@@ -7,6 +7,7 @@ v1 = str(f'api/v1/')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.urls')),
     path(v1, include('alarmes.urls')),
     path(v1, include('usuarios.urls')),
     path(v1, include('receitas.urls')),
