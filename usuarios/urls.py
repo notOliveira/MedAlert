@@ -13,5 +13,8 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='login'),
     path('login/refresh/', TokenRefreshView.as_view(), name='login-atualizar'),
     path('registro/', views.RegistroUsuario.as_view(), name='registro'),
+    path('auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('callback/', views.google_login_callback, name='callback'),
+    path('google/validade_token/', views.validate_google_token, name='validate-token'),
     # path('users/<int:id>/', views.UsuarioDetailView.as_view(), name='usuario-detail'),
 ]
