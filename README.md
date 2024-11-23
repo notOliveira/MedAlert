@@ -107,12 +107,13 @@ python.exe .\manage.py runserver 0.0.0.0:8000
 ```
 # General configs
 
-DEBUG=False
+DEBUG=True
 ENVIRONMENT=sqlite / local / production # Escolha se usará o SQLITE, mysql local ou banco de produção
 SECRET_KEY='?'
 ALLOWED_HOSTS=*
 CSRF_TRUSTED_ORIGINS=http://localhost:<porta frontend>
 CORS_ALLOWED_ORIGINS=*
+FRONTEND_URL=http://localhost:5173
 
 # Database - Local
 
@@ -135,6 +136,9 @@ PROD_PORT=?
 
 EMAIL_HOST_USER=?
 EMAIL_HOST_PASSWORD=?
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=?
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=?
 ```
 
 ## Para rodar os testes
@@ -144,3 +148,16 @@ python manage.py test --verbosity=2
 ```
 
 - OBS: o parâmetro opctional "--verbosity=n" também pode ser usado, com "n" sendo um número de 0 a 3 que identifica os níveis de logs que serão exibidos nos testes, com 0 sendo uma quantidade menor e 3 sendo a quantidade maior. O verbosity 2 é o mais recomendado.
+
+## Configuração de aplicativo social
+
+
+![alt text](/static/readme/image.png)
+```json
+{
+    "scope": [
+        "profile",
+        "email"
+    ]
+}
+```

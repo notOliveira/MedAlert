@@ -1,4 +1,5 @@
 from allauth.socialaccount.models import SocialToken, SocialAccount
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -84,7 +85,7 @@ def google_login_callback(request):
 
     if not social_account:
         print(f"No social account found for user {user}")
-        return redirect('http://localhost:5173/login/callback/?error=NoSocialAccount')
+        return redirect(f'{settings.FRONTEND_URL}/login/callback/?error=NoSocialAccount')
     
     token = SocialToken.objects.filter(account=social_account, account__provider='google').first()
 
@@ -92,10 +93,10 @@ def google_login_callback(request):
         print(f"Google token found: {token.token}")
         refresh_token = RefreshToken.for_user(user)
         access_token = str(refresh_token.access_token)
-        return redirect(f'http://localhost:5173/login/callback/?access_token={access_token}')
+        return redirect(f'{settings.FRONTEND_URL}/login/callback/?access_token={access_token}')
     else:
         print(f'No Google token found for user: {user}')
-        return redirect(f'http://localhost:5173/login/callback/?error=NoGoogleToken')
+        return redirect(f'{settings.FRONTEND_URL}/login/callback/?error=NoGoogleToken')
     
 @csrf_exempt
 def validate_google_token(request):

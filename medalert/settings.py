@@ -39,6 +39,7 @@ CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS').split(';')
 
 CORS_ALLOWS_CREDENTIALS=True
 
+FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 # Application definition
 
@@ -214,7 +215,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 # EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
-LOGIN_REDIRECT_URL = '/callback/'
+LOGIN_REDIRECT_URL = '/api/v1/callback/'
 
 SOCIALACCOUNT_PRODIVERS = {
     'google': {
