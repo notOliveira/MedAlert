@@ -6,7 +6,7 @@ from usuarios.constants import USER_TYPES, SPECIALITIES, BRAZIL_STATES
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['id', 'email', 'username', 'first_name', 'last_name']
+        fields = ['id', 'email', 'username', 'first_name', 'last_name', 'user_type']
 
 class UsuarioReceitaSerializer(serializers.ModelSerializer):
     class Meta:
