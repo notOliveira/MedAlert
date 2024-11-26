@@ -153,6 +153,18 @@ elif environment == 'production':
         }
     }
 
+elif environment == 'dev':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ["DEV_DATABASE"],
+            'USER': os.environ["DEV_USER"],
+            'PASSWORD': os.environ["DEV_PASSWORD"],
+            'HOST': os.environ["DEV_HOST"],
+            'PORT': os.environ["DEV_PORT"],
+        }
+    }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
