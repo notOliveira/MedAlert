@@ -1,13 +1,18 @@
+from django.contrib.sites.models import Site
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from django.utils import timezone
+from allauth.socialaccount.models import SocialApp
+from allauth.socialaccount.providers.google.provider import GoogleProvider
 from usuarios.models import Usuario
 from receitas.models import Receita
 from alarmes.models import Alarme
 from random import randint
 
 
+
 class Command(BaseCommand):
-    help = 'Cria médicos, pacientes, receitas e alarmes de exemplo no banco de dados'
+    help = 'Cria médicos, pacientes, receitas, alarmes e configurações de login social no banco de dados'
 
     def handle(self, *args, **options):
         try:
@@ -53,23 +58,23 @@ class Command(BaseCommand):
                 )
                 pacientes.append(paciente)
 
-            # Criando alarmes com medicamentos 1 a 6
+            # Criando alarmes
             alarmes = []
-            for i in range(6):  # Seis alarmes no total
+            for i in range(6):
                 alarme = Alarme.objects.create(
                     inicio=timezone.now(),
                     intervalo_horas=6,
                     duracao_dias=randint(1, 7),
-                    medicamento=f'Medicamento {i+1}'  # Medicamentos de 1 a 6
+                    medicamento=f'Medicamento {i+1}'
                 )
                 alarmes.append(alarme)
 
-            # Criando duas receitas para cada paciente com medicamentos 1 a 6
+            # Criando receitas
             for i in range(3):
                 Receita.objects.create(
                     medico=medicos[i],
                     paciente=pacientes[i],
-                    alarme=alarmes[i * 2],  # Medicamentos 1, 3, 5 para cada paciente
+                    alarme=alarmes[i * 2],
                     recomendacao='Tomar em jejum',
                     dose='1 comprimido',
                     medicamento=f'Medicamento {i * 2 + 1}'
@@ -77,13 +82,30 @@ class Command(BaseCommand):
                 Receita.objects.create(
                     medico=medicos[i],
                     paciente=pacientes[i],
-                    alarme=alarmes[i * 2 + 1],  # Medicamentos 2, 4, 6 para cada paciente
+                    alarme=alarmes[i * 2 + 1],
                     recomendacao='Após refeições',
                     dose='2 comprimidos',
                     medicamento=f'Medicamento {i * 2 + 2}'
                 )
 
-            self.stdout.write(self.style.SUCCESS('Médicos, pacientes, receitas e alarmes criados com sucesso.'))
+            # Criando aplicativo social para Google Login
+            if not SocialApp.objects.filter(provider=GoogleProvider.id).exists():
+                
+                app = SocialApp.objects.create(
+                    provider=GoogleProvider.id,
+                    name="Google Login",
+                    client_id=settings.SOCIAL_AUTH_GOOGLE_OAUTH2_KEY,
+                    secret=settings.SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET,
+                    settings={
+                        "scope": ["profile", "email"]
+                    }
+                )
+
+                # Vincular ao site (Django contrib.sites)
+                site = Site.objects.get(pk=1)  # Certifique-se de que o Site existe no banco de dados
+                app.sites.add(site)
+
+            self.stdout.write(self.style.SUCCESS('Médicos, pacientes, receitas, alarmes e login social criados com sucesso.'))
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Erro ao criar os objetos!\n{e}'))

@@ -108,7 +108,7 @@ python.exe .\manage.py runserver 0.0.0.0:8000
 # General configs
 
 DEBUG=True
-ENVIRONMENT=sqlite / local / production # Escolha se usará o SQLITE, mysql local ou banco de produção
+ENVIRONMENT=sqlite / local / dev / production # Escolha se usará o SQLITE, mysql local, banco de dev ou produção
 SECRET_KEY='?'
 ALLOWED_HOSTS=*
 CSRF_TRUSTED_ORIGINS=http://localhost:<porta frontend>
@@ -130,6 +130,14 @@ PROD_USER=?
 PROD_PASSWORD=?
 PROD_HOST=?
 PROD_PORT=?
+
+# Database - Dev
+
+DEV_DATABASE=?
+DEV_USER=?
+DEV_PASSWORD=?
+DEV_HOST=?
+DEV_PORT=?
 
 
 # Email
