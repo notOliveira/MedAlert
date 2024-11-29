@@ -1,3 +1,10 @@
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.encoding import smart_str, force_str, smart_bytes, force_bytes, DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.urls import reverse
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from usuarios.models import Usuario
@@ -70,3 +77,57 @@ class RegistroSerializer(serializers.ModelSerializer):
 
         usuario.save()
         return usuario
+    
+class ResetPasswordEmailRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(min_length=5)
+
+    class Meta:
+        fields = ['email']
+
+    def validate(self, data):
+        try:
+            email = data.get('email')
+            if not Usuario.objects.filter(email=email).exists():
+                raise serializers.ValidationError("Não existe usuário com o email fornecido.")
+
+            # Obter o usuário associado ao email
+            user_email = Usuario.objects.get(email=email)
+
+            # Gerar token de redefinição de senha
+            token = PasswordResetTokenGenerator().make_token(user_email)
+
+            # Domínio atual do site
+            current_site = get_current_site(self.context['request']).domain
+
+            # Parâmetros para o email
+            email_template_name = "usuarios/reset_password.txt"
+            subject = 'Redefinir sua senha'
+            parameters = {
+                'name': user_email.first_name,
+                'domain': self.context['request'].get_host(),
+                'site_name': 'MedAlert',
+                'uid': urlsafe_base64_encode(force_bytes(user_email.pk)),
+                'token': token,
+                'protocol': self.context['request'].scheme
+            }
+
+            # Renderizar o conteúdo do email
+            email_content = render_to_string(email_template_name, parameters)
+
+            print(email_content)
+
+            # Enviar o email
+            send_mail(
+                subject=subject,
+                message=email_content,
+                from_email=None,  # Substitua por um email válido se necessário
+                recipient_list=[user_email.email],
+                fail_silently=False
+            )
+
+            return data
+
+        except Exception as e:
+            # Para maior clareza, envie o erro ao log ao invés de usá-lo diretamente na resposta.
+            print(e)
+            raise serializers.ValidationError(f"Erro ao enviar email de redefinição de senha.")

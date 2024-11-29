@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from usuarios.models import Usuario
-from usuarios.serializers import UsuarioSerializer, RegistroSerializer
+from usuarios.serializers import UsuarioSerializer, RegistroSerializer, ResetPasswordEmailRequestSerializer
 from usuarios.permissions import IsOwnerOrAdmin
 import json
 
@@ -72,6 +72,26 @@ class RegistroUsuario(generics.CreateAPIView):
         return Response(
             {"message": "Usuário criado com sucesso!"},
             status=status.HTTP_201_CREATED
+        )
+
+class RequestPasswordResetEmail(generics.GenericAPIView):
+    serializer_class = ResetPasswordEmailRequestSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        return Response(
+            {'success': True, 'message': 'Email para redefinição de senha enviado.'},
+            status=status.HTTP_200_OK
+        )
+
+class PasswordTokenCheckAPI(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, uidb64, token):
+        return Response(
+            {'success': True, 'message': 'Credenciais válidas', 'uidb64': uidb64, 'token': token}
         )
 
 @login_required
