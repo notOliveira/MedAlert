@@ -18,5 +18,6 @@ urlpatterns = [
     path('google/validade_token/', views.validate_google_token, name='validate-token'),
     path('password-reset-request/', views.RequestPasswordResetEmail.as_view(), name='password-reset-request'),
     path('password-reset/<uidb64>/<token>/', views.PasswordTokenCheckAPI.as_view(), name='password-reset-confirm'),
+    path('password-reset-complete/', views.SetNewPasswordAPIView.as_view(), name='password-reset-complete'),
     # path('users/<int:id>/', views.UsuarioDetailView.as_view(), name='usuario-detail'),
 ]

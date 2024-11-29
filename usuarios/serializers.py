@@ -6,6 +6,7 @@ from django.utils.encoding import smart_str, force_str, smart_bytes, force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.urls import reverse
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.validators import UniqueValidator
 from usuarios.models import Usuario
 from usuarios.constants import USER_TYPES, SPECIALITIES, BRAZIL_STATES
@@ -125,3 +126,28 @@ class ResetPasswordEmailRequestSerializer(serializers.Serializer):
         except Exception as e:
             # Retornar o erro como uma mensagem de validação
             raise serializers.ValidationError("Usuário não encontrado com o email fornecido.")
+        
+class SetNewPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=8, write_only=True)
+    uidb64 = serializers.CharField(write_only=True)
+    token = serializers.CharField(write_only=True)
+
+    class Meta:
+        fields = ['password', 'uidb64', 'token']
+
+    def validate(self, data):
+        # Validar o token
+        try:
+            id = smart_str(urlsafe_base64_decode(data['uidb64']))
+            user = Usuario.objects.get(id=id)
+
+            if not PasswordResetTokenGenerator().check_token(user, data['token']):
+                raise AuthenticationFailed("O token é inválido.")
+
+            user.set_password(data['password'])
+            user.save()
+
+            return (user)
+
+        except DjangoUnicodeDecodeError as e:
+            raise serializers.ValidationError("Token inválido.")

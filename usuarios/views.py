@@ -2,9 +2,12 @@ from allauth.socialaccount.models import SocialToken, SocialAccount
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.shortcuts import redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.encoding import smart_str, force_str, smart_bytes, force_bytes, DjangoUnicodeDecodeError
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, PermissionDenied
@@ -12,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from usuarios.models import Usuario
-from usuarios.serializers import UsuarioSerializer, RegistroSerializer, ResetPasswordEmailRequestSerializer
+from usuarios.serializers import UsuarioSerializer, RegistroSerializer, ResetPasswordEmailRequestSerializer, SetNewPasswordSerializer
 from usuarios.permissions import IsOwnerOrAdmin
 import json
 
@@ -90,8 +93,31 @@ class PasswordTokenCheckAPI(generics.GenericAPIView):
     permission_classes = [AllowAny]
 
     def get(self, request, uidb64, token):
+        try:
+            id = smart_str(urlsafe_base64_decode(uidb64))
+            user = Usuario.objects.get(id=id)
+
+            return Response(
+                {'success': True, 'message': 'Token válido.', 'uidb64': uidb64, 'token': token},
+                status=status.HTTP_200_OK
+            )
+                
+        except DjangoUnicodeDecodeError as identifier:
+            return Response(
+                    {'error': 'Token inválido.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+class SetNewPasswordAPIView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = SetNewPasswordSerializer
+
+    def patch(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
         return Response(
-            {'success': True, 'message': 'Credenciais válidas', 'uidb64': uidb64, 'token': token}
+            {'success': True, 'message': 'Senha redefinida com sucesso.'},
+            status=status.HTTP_200_OK
         )
 
 @login_required
