@@ -101,7 +101,7 @@ class ResetPasswordEmailRequestSerializer(serializers.Serializer):
 
             # Parâmetros para o email
             email_template_name = "usuarios/reset_password.txt"
-            subject = 'Redefinir sua senha'
+            subject = 'Redefinir sua senha - MedAlert'
             parameters = {
                 'name': user_email.first_name,
                 'domain': self.context['request'].get_host(),
