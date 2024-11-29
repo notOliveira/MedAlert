@@ -99,23 +99,23 @@ def google_login_callback(request):
     user = request.user
 
     social_accounts = SocialAccount.objects.filter(user=user)
-    print(f"Social account for user: {social_accounts}")
+    # print(f"Social account for user: {social_accounts}")
 
     social_account = social_accounts.first()
 
     if not social_account:
-        print(f"No social account found for user {user}")
+        # print(f"No social account found for user {user}")
         return redirect(f'{settings.FRONTEND_URL}/login/callback/?error=NoSocialAccount')
     
     token = SocialToken.objects.filter(account=social_account, account__provider='google').first()
 
     if token:
-        print(f"Google token found: {token.token}")
+        # print(f"Google token found: {token.token}")
         refresh_token = RefreshToken.for_user(user)
         access_token = str(refresh_token.access_token)
         return redirect(f'{settings.FRONTEND_URL}/login/callback/?access_token={access_token}')
     else:
-        print(f'No Google token found for user: {user}')
+        # print(f'No Google token found for user: {user}')
         return redirect(f'{settings.FRONTEND_URL}/login/callback/?error=NoGoogleToken')
     
 @csrf_exempt
@@ -124,7 +124,6 @@ def validate_google_token(request):
         try:
             data = json.loads(request.body)
             google_access_token = data.get('access_token')
-            print(google_access_token)
 
             if not google_access_token:
                 return JsonResponse({'detail': 'O campo access_token é obrigatório.'}, status=status.HTTP_400_BAD_REQUEST)

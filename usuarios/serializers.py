@@ -114,8 +114,6 @@ class ResetPasswordEmailRequestSerializer(serializers.Serializer):
             # Renderizar o conteúdo do email
             email_content = render_to_string(email_template_name, parameters)
 
-            print(email_content)
-
             # Enviar o email
             send_mail(
                 subject=subject,
