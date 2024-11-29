@@ -96,9 +96,6 @@ class ResetPasswordEmailRequestSerializer(serializers.Serializer):
             # Gerar token de redefinição de senha
             token = PasswordResetTokenGenerator().make_token(user_email)
 
-            # Domínio atual do site
-            current_site = get_current_site(self.context['request']).domain
-
             # Parâmetros para o email
             email_template_name = "usuarios/reset_password.txt"
             subject = 'Redefinir sua senha - MedAlert'
@@ -126,6 +123,5 @@ class ResetPasswordEmailRequestSerializer(serializers.Serializer):
             return data
 
         except Exception as e:
-            # Para maior clareza, envie o erro ao log ao invés de usá-lo diretamente na resposta.
-            print(e)
-            raise serializers.ValidationError(f"Erro ao enviar email de redefinição de senha.")
+            # Retornar o erro como uma mensagem de validação
+            raise serializers.ValidationError("Usuário não encontrado com o email fornecido.")
