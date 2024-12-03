@@ -45,7 +45,7 @@ FRONTEND_URL = os.getenv('FRONTEND_URL')
 
 INSTALLED_APPS = [
     'alarmes.apps.AlarmesConfig',
-    # 'medicamentos.apps.MedicamentosConfig',
+    'medicamentos.apps.MedicamentosConfig',
     'usuarios.apps.UsuariosConfig',
     'receitas.apps.ReceitasConfig',
     'django.contrib.admin',

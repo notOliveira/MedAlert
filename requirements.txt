@@ -13,3 +13,4 @@ colorama
 django-allauth
 requests
 cryptography
+Pillow
