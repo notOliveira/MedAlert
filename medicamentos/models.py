@@ -7,6 +7,7 @@ class Medicamento(models.Model):
     unidade = models.CharField(max_length=100, help_text="Unidade de dosagens do medicamento")
     frequencia = models.CharField(max_length=100, help_text="Frequência de uso do medicamento")
     data = models.DateField(help_text="Data de início do uso do medicamento")
+    horario = models.TimeField(help_text="Horário de uso do medicamento")
     alarme = models.BooleanField(default=False, help_text="Ativar alarme para o medicamento")
     imagem = models.ImageField(upload_to='medicamentos/', blank=True, null=True, help_text="Imagem do medicamento")
 
