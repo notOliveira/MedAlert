@@ -105,7 +105,9 @@ class ReceitaViewSet(viewsets.ModelViewSet):
                 "receita": {
                     "id": receita.id,
                     "medico": receita.medico.id,
-                    "paciente": receita.paciente.email,
+                    "paciente": {
+                        "first_name": receita.paciente.first_name
+                    },
                     "recomendacao": receita.recomendacao,
                     "dose": receita.dose,
                     "medicamento": receita.medicamento,
