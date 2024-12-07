@@ -41,7 +41,7 @@ class Usuario(AbstractUser):
     objects = UsuarioManager()
     email = models.EmailField(unique=True, null=False, blank=False, help_text="Endereço de e-mail")
     username = models.CharField(max_length=150, unique=True, help_text="Nome de usuário")
-    user_type = models.CharField(max_length=3, choices=USER_TYPES, default='PAC', help_text="Tipo de usuário")
+    user_type = models.CharField(max_length=3, choices=USER_TYPES, default='MED', help_text="Tipo de usuário")
     idade = models.IntegerField(null=True, blank=True)
     crm = models.CharField(max_length=10, null=True, blank=True)
     estado = models.CharField(max_length=2, choices=BRAZIL_STATES, null=True, blank=True)
